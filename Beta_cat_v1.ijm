@@ -7,6 +7,8 @@
  * 
  */
 
+dir = getDirectory("image"); 
+
 run("Z Project...", "projection=[Max Intensity]");
 rename("Raw_Data");
 run("Split Channels");
@@ -60,3 +62,82 @@ run("Select None");
 setAutoThreshold("Otsu dark");
 
 run("Analyze Particles...", "add");
+
+
+N_1 = roiManager("count");
+
+j = N;
+
+run("Set Measurements...", "mean centroid redirect=None decimal=3");
+
+Mean = newArray(N_1 - N);
+x = newArray(N_1 - N);
+y = newArray(N_1 - N);
+Belongs_to = newArray(N_1 - N);
+
+run("Clear Results");
+
+
+while (j < N_1) {
+	selectWindow("Beta_Cat");
+	roiManager("Select", j);
+	print(j);
+	run("Measure");
+	j++;
+	Mean[j-N-1] = getResult("Mean", 0);
+	x[j-N-1] = getResult("X", 0);
+	y[j-N-1] = getResult("Y", 0);
+	
+	
+	run("Clear Results");
+	
+}
+
+j = 0;
+selectWindow("Beta_Cat");
+getPixelSize (unit, pixelWidth, pixelHeight);
+
+while (j < N_1-N){
+	x_i = x[j];
+	y_i = y[j];
+
+	dist_min = 10000;
+	cell = 0;
+	for (i = 0; i < N; i++) {
+		roiManager("Select", i);
+		roiManager("rename", "cell " + i)
+		getSelectionCoordinates(x_s, y_s);
+		//Array.show(x_s, y_s);
+		//hasldkjhldkasjhfjk
+		
+		for (k = 0; k < lengthOf(x_s); k++) {
+			dist = sqrt(Math.sqr(x_s[k]*pixelWidth - x_i) + Math.sqr(y_s[k]*pixelWidth - y_i));
+			if (dist < dist_min) {
+				dist_min = dist;
+				cell = i;
+			}
+
+		}
+
+	}
+	Belongs_to[j] = cell;
+	roiManager("Select", j + N);
+	roiManager("rename", cell)
+	j++;
+}
+
+/*Array.show(x);
+Array.show(y);
+Array.show(Mean);*/
+/*
+roiManager("Select", 0);
+getSelectionCoordinates(x, y);
+
+Array.show(x);
+Array.show(y);*/
+
+
+
+
+
+
