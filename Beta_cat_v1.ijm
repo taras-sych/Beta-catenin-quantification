@@ -8,6 +8,7 @@
  */
 
 dir = getDirectory("image"); 
+name = getTitle();
 
 run("Z Project...", "projection=[Max Intensity]");
 rename("Raw_Data");
@@ -125,6 +126,37 @@ while (j < N_1-N){
 	roiManager("rename", cell)
 	j++;
 }
+
+
+
+
+xl=File.open(dir+ File.separator+"Summary_" + name + ".xls");
+
+print(xl, "cell number" + "\t" + "nucleus mean" + "\t" + "clusters");
+
+
+line = "cell ";
+
+
+for (i = 0; i < N; i++) {
+	line = line + i + "\t" + Mean_inside[i] + "\t";
+	for (j = 0; j < lengthOf(Belongs_to); j++) {
+		if (Belongs_to[j] == i) {
+			line = line + Mean[j] + "\t";
+			
+		}
+		
+	}
+
+print(xl, line);
+line = "cell ";	
+}
+
+
+
+
+
+File.close(xl);
 
 /*Array.show(x);
 Array.show(y);
