@@ -9,7 +9,8 @@
 
 dir = getDirectory("image"); 
 name = getTitle();
-
+print(name);
+setBatchMode(false);
 run("Z Project...", "projection=[Max Intensity]");
 rename("Raw_Data");
 run("Split Channels");
@@ -32,6 +33,12 @@ close();
 N = roiManager("count");
 Mean_inside = newArray(N);
 
+Color_of_cell = newArray(N);
+
+
+
+
+
 run("Set Measurements...", "mean redirect=None decimal=3");
 
 
@@ -42,7 +49,7 @@ for (i = 0; i < N; i++) {
 	Mean_inside[i] = getResult("Mean", i);
 }
 
-Array.show(Mean_inside);
+//Array.show(Mean_inside);
 run("Select None");
 
 selectWindow("Beta_Cat");
@@ -54,13 +61,14 @@ run("Smooth");
 
 for (i = 0; i < N; i++) {
 	roiManager("Select", i);
+	run("Colors...", "foreground=black background=black selection=black");
 	run("Clear");
 }
 
 
 run("Select None");
-
-setAutoThreshold("Otsu dark");
+//waitForUser("Threshold");
+setAutoThreshold("Huang dark");
 
 run("Analyze Particles...", "add");
 
@@ -82,7 +90,7 @@ run("Clear Results");
 while (j < N_1) {
 	selectWindow("Beta_Cat");
 	roiManager("Select", j);
-	print(j);
+	//print(j);
 	run("Measure");
 	j++;
 	Mean[j-N-1] = getResult("Mean", 0);
@@ -137,12 +145,13 @@ print(xl, "cell number" + "\t" + "nucleus mean" + "\t" + "clusters");
 
 line = "cell ";
 
-
+line_all = "all" + "\t";
 for (i = 0; i < N; i++) {
 	line = line + i + "\t" + Mean_inside[i] + "\t";
 	for (j = 0; j < lengthOf(Belongs_to); j++) {
 		if (Belongs_to[j] == i) {
-			line = line + Mean[j] + "\t";
+			line = line + Mean[j]/Mean_inside[i] + "\t";
+			line_all = line_all +  Mean[j]/Mean_inside[i] + "\t";
 			
 		}
 		
@@ -152,24 +161,74 @@ print(xl, line);
 line = "cell ";	
 }
 
-
-
-
-
+print(xl, line_all);
 File.close(xl);
 
-/*Array.show(x);
-Array.show(y);
-Array.show(Mean);*/
+
+//----------------------------------Output of everything else
+selectWindow(name);
+close();
+
+selectWindow("Beta_Cat_Mask");
+close();
 /*
-roiManager("Select", 0);
-getSelectionCoordinates(x, y);
+for (i = 0; i < N; i++) {
+	
+	if (i%8 == 1) {
+		Color_of_cell[i] = "blue";
+	}
 
-Array.show(x);
-Array.show(y);*/
+	if (i%8 == 2) {
+		Color_of_cell[i] = "cyan";
+	}
+
+	if (i%8 == 3) {
+		Color_of_cell[i] = "green";
+	}
+
+	if (i%8 == 4) {
+		Color_of_cell[i] = "magenta";
+	}
+
+	if (i%8 == 5) {
+		Color_of_cell[i] = "orange";
+	}
+
+	if (i%8 == 6) {
+		Color_of_cell[i] = "red";
+	}
+
+	if (i%8 == 7) {
+		Color_of_cell[i] = "white";
+	}
+
+	if (i%8 == 0) {
+		Color_of_cell[i] = "yellow";
+	}
+
+}
+
+selectWindow("Beta_Cat");
+run("Grays");
+run("RGB Color");
+
+for (i = 0; i < N; i++) {
+
+	roiManager("Select", i);
+	color = Color_of_cell[i];
+	
+	run("Colors...", "foreground=color background=color selection=color");
+	run("Line Width...", "line=3");
+	run("Draw", "slice");
+}*/
+
+selectWindow("Beta_Cat");
+close();
 
 
-
+roiManager("Deselect");
+roiManager("Delete");
+waitForUser("done");
 
 
 
