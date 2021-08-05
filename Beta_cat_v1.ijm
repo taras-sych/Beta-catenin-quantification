@@ -68,7 +68,7 @@ for (i = 0; i < N; i++) {
 
 run("Select None");
 //waitForUser("Threshold");
-setAutoThreshold("Huang dark");
+setAutoThreshold("Li dark");
 
 run("Analyze Particles...", "add");
 
@@ -170,6 +170,7 @@ selectWindow(name);
 close();
 
 selectWindow("Beta_Cat_Mask");
+
 close();
 /*
 for (i = 0; i < N; i++) {
